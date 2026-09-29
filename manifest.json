@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Clair-SpicyTheme",
+    "description": "Glass theme with an animated cover art background behind the whole app, in Light or Dark. Optionally syncs with Spicy Lyrics so the app and the lyrics page match.",
+    "preview": "preview.png",
+    "readme": "README.md",
+    "usercss": "user.css",
+    "schemes": "color.ini",
+    "include": ["https://cdn.jsdelivr.net/gh/VictorGugug/Clair-SpicyTheme@master/theme.js"],
+    "branch": "master",
+    "authors": [{ "name": "VictorGugug", "url": "https://github.com/VictorGugug" }],
+    "tags": ["dark", "glass", "spicy-lyrics", "dynamic-background"]
+  }
+]

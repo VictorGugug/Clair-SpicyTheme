@@ -1,0 +1,905 @@
+:root {
+  --clair-radius: 12px;
+  --clair-radius-sm: 8px;
+  --clair-gap: 12px;
+  --clair-player-h: 88px;
+  --clair-accent: var(--spice-button);
+  --clair-accent-rgb: var(--spice-rgb-button);
+  --clair-glow: var(--spice-main);
+
+  --background-base: var(--spice-main);
+  --background-highlight: var(--spice-card);
+  --background-press: var(--spice-selected-row);
+  --text-subdued: var(--spice-subtext);
+}
+
+.main-entityHeader-background,
+.main-entityHeader-backgroundColor,
+.main-entityHeader-overlay,
+.main-actionBarBackground-background,
+.main-home-homeHeader,
+.x-entityHeader-overlay {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+.main-topBar-overlay {
+  background-color: var(--spice-main);
+}
+
+/* Sticky top bar (artist name + play button on profiles): glass once Spotify fades it in */
+.main-topBar-background {
+  background-color: rgba(var(--spice-rgb-main), 0.6) !important;
+  background-image: none !important;
+  box-shadow: inset 0 -1px rgb(255 255 255 / 6%);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+}
+
+.main-topBar-background::after {
+  display: none;
+}
+
+.main-entityHeader-container {
+  padding: 16px 0;
+}
+
+.main-entityHeader-shadow {
+  box-shadow: 0 4px 20px rgb(0 0 0 / 25%);
+}
+
+.Root__top-container {
+  --panel-gap: var(--clair-gap) !important;
+}
+
+.Root__nav-bar,
+.Root__main-view,
+.main-nowPlayingBar-container {
+  border-radius: var(--clair-radius);
+  background-color: var(--spice-main);
+}
+
+.Root__main-view {
+  background-image: linear-gradient(180deg, var(--clair-glow) 0, transparent 420px);
+}
+
+.Root__nav-bar {
+  background-color: var(--spice-sidebar);
+}
+
+.main-nowPlayingBar-container {
+  background-color: var(--spice-player);
+}
+
+.main-card-card,
+.main-cardImage-imageWrapper {
+  border-radius: var(--clair-radius);
+}
+
+.main-card-card:hover {
+  background-color: var(--spice-card) !important;
+}
+
+.main-cardImage-imageWrapper {
+  box-shadow: none;
+}
+
+.main-image-image,
+.main-avatar-image,
+.main-nowPlayingView-coverArt {
+  border-radius: var(--clair-radius-sm) !important;
+}
+
+/* The rounded image sits in Spotify's square-cornered placeholder; hide it or it shows as a dark frame */
+.x-entityImage-imageContainer,
+.main-cardImage-imageWrapper,
+.main-nowPlayingWidget-coverArtContainer,
+.main-nowPlayingWidget-coverArt .cover-art {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.main-nowPlayingBar-nowPlayingBar {
+  min-height: var(--clair-player-h);
+  padding: 8px 12px;
+}
+
+.progress-bar {
+  --fg-color: var(--clair-accent);
+  --is-active-fg-color: var(--clair-accent);
+}
+
+.main-trackList-playingIcon {
+  filter: grayscale(1);
+}
+
+.main-trackList-trackListRow:hover,
+.main-trackList-trackListRow:focus-within {
+  background-color: var(--spice-card) !important;
+}
+
+.main-trackList-trackListRow.main-trackList-selected,
+.main-trackList-trackListRow.main-trackList-selected:hover {
+  background-color: var(--spice-selected-row) !important;
+}
+
+.os-scrollbar-handle {
+  border-radius: 99px !important;
+  width: 6px !important;
+}
+
+.os-scrollbar-vertical {
+  top: 6px !important;
+  right: 6px !important;
+}
+
+.main-contextMenu-menu,
+.tippy-box {
+  border-radius: var(--clair-radius-sm) !important;
+  background-color: var(--spice-card);
+}
+
+.GenericModal,
+dialog {
+  border-radius: var(--clair-radius) !important;
+}
+
+dialog::backdrop {
+  background-color: rgb(0 0 0 / 60%) !important;
+}
+
+/* Spotify's own inputs only: leave Spicy Lyrics and Clair controls alone */
+input:not(.clair-modal input, sl-generic-modal input, [type="range"], [type="color"], [type="checkbox"]) {
+  background-color: unset !important;
+  border-bottom: 1px solid var(--spice-text) !important;
+  border-radius: 0 !important;
+  color: var(--spice-text) !important;
+}
+
+::placeholder {
+  color: var(--spice-subtext);
+}
+
+body.clair-minimal .main-buddyFeed-container,
+body.clair-minimal .main-topBar-buddyFeed[data-restore-focus-key="buddy_feed"] {
+  display: none !important;
+}
+
+/* Spicy Lyrics dynamic background (WebGL canvas drawn by theme.js) */
+#clair-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+body.clair-bg:not(.clair-bg-image, .clair-bg-color) #clair-bg {
+  display: block;
+}
+
+/* Spicy Lyrics static backgrounds (image and color), same filters as Spicy */
+#clair-bg-static {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+body.clair-bg.clair-bg-image #clair-bg-static {
+  display: block;
+  scale: 1.25;
+  filter: brightness(0.55) contrast(1.05) saturate(1.7) blur(var(--clair-static-blur, 0px));
+  transition: background-image 0.85s cubic-bezier(0.66, 0, 0.34, 1);
+}
+
+body.clair-bg.clair-bg-color #clair-bg-static {
+  display: block;
+  background-color: rgb(var(--clair-min, 18, 18, 18));
+  transition: background-color 1.5s;
+}
+
+body.clair-bg.clair-bg-color #clair-bg-static::before,
+body.clair-bg.clair-bg-color #clair-bg-static::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+body.clair-bg.clair-bg-color #clair-bg-static::before {
+  height: 90%;
+  background-color: rgb(var(--clair-high, 18, 18, 18));
+  -webkit-mask-image: linear-gradient(to top, transparent, black 145%);
+  mask-image: linear-gradient(to top, transparent, black 145%);
+  transition: background-color 1.5s;
+}
+
+body.clair-bg.clair-bg-color #clair-bg-static::after {
+  opacity: 0.3;
+  background: linear-gradient(to top, #000, transparent);
+}
+
+body.clair-bg,
+body.clair-bg .Root__top-container,
+body.clair-bg .Root__globalNav,
+body.clair-bg .Root__now-playing-bar {
+  background: transparent !important;
+}
+
+/* Glass panels with the Spicy Lyrics edge highlight */
+body.clair-bg .Root__nav-bar,
+body.clair-bg .Root__main-view,
+body.clair-bg .Root__right-sidebar > :not(.LayoutResizer__resize-bar),
+body.clair-bg .main-nowPlayingBar-container {
+  background: rgba(var(--spice-rgb-main), var(--clair-opacity)) !important;
+  border: none;
+  box-shadow: inset 0 1px rgb(255 255 255 / 14%), inset 0 0 0 1px rgb(255 255 255 / 8%), inset 0 -1px rgb(255 255 255 / 10%), 0 8px 32px rgb(0 0 0 / 20%);
+}
+
+body.clair-bg {
+  --background-base: transparent;
+  --background-highlight: rgb(255 255 255 / 8%);
+  --background-press: rgb(255 255 255 / 12%);
+  --background-elevated-base: rgb(255 255 255 / 8%);
+  --background-elevated-highlight: rgb(255 255 255 / 14%);
+  --background-elevated-press: rgb(255 255 255 / 18%);
+  --background-tinted-base: rgb(255 255 255 / 8%);
+  --background-tinted-highlight: rgb(255 255 255 / 14%);
+}
+
+body.clair-bg .main-topBar-overlay,
+body.clair-bg .main-home-filterChipsSection,
+body.clair-bg .main-trackList-trackListHeader {
+  background-color: transparent !important;
+}
+
+/* Profiles: the header image sits outside the scroller. Scroll it with the page
+   instead of letting it show through the track list, and drop the artist color layer. */
+body.clair-bg .main-view-container {
+  timeline-scope: --clair-scroll;
+}
+
+body.clair-bg .main-view-container > .main-view-container__scroll-node > [data-overlayscrollbars-viewport] {
+  scroll-timeline: --clair-scroll block;
+}
+
+body.clair-bg .before-scroll-node > div:has(> [style*="background-image"]) {
+  animation: clair-scroll-with-page linear both;
+  animation-timeline: --clair-scroll;
+  animation-range: 0 2000px;
+}
+
+body.clair-bg .before-scroll-node > div > * {
+  -webkit-mask-image: linear-gradient(#000 60%, transparent);
+  mask-image: linear-gradient(#000 60%, transparent);
+}
+
+body.clair-bg .before-scroll-node > div > ::after {
+  display: none;
+}
+
+@keyframes clair-scroll-with-page {
+  to { transform: translateY(-2000px); }
+}
+
+body.clair-bg [class*="actionBarBackground-background"] {
+  background: none !important;
+}
+
+body.clair-bg .search-searchCategory-contentArea::before,
+body.clair-bg .search-searchCategory-contentArea::after {
+  display: none;
+}
+
+body.clair-bg .main-card-card,
+body.clair-bg .main-trackList-trackListRow {
+  background-color: transparent;
+}
+
+body.clair-bg .main-card-card:hover,
+body.clair-bg .main-trackList-trackListRow:hover {
+  background-color: rgb(255 255 255 / 8%) !important;
+}
+
+body.clair-glass .Root__nav-bar,
+body.clair-glass .Root__main-view,
+body.clair-glass .Root__right-sidebar > :not(.LayoutResizer__resize-bar),
+body.clair-glass .main-nowPlayingBar-container {
+  -webkit-backdrop-filter: blur(var(--clair-glass-blur)) saturate(1.3);
+  backdrop-filter: blur(var(--clair-glass-blur)) saturate(1.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main-card-card,
+  .main-trackList-trackListRow {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Settings button: large glass square next to the avatar */
+.clair-cog {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  margin-inline-end: 8px;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: var(--clair-radius);
+  background: rgb(255 255 255 / 8%);
+  color: var(--spice-text);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.clair-cog:hover {
+  background: rgb(255 255 255 / 16%);
+  color: var(--clair-accent);
+  transform: scale(1.04);
+}
+
+.clair-cog:active {
+  transform: scale(0.96);
+}
+
+.clair-cog:focus-visible {
+  outline: 2px solid var(--clair-accent);
+  outline-offset: 2px;
+}
+
+/* Settings modal: same tokens and layout as the Spicy Lyrics settings */
+.clair-modal {
+  --c-text: hsl(0 0% 100% / 92%);
+  --c-text-2: hsl(0 0% 100% / 60%);
+  --c-text-3: hsl(0 0% 100% / 35%);
+  --c-tint: rgb(255 255 255 / 6%);
+  --c-tint-hover: rgb(255 255 255 / 14%);
+  --c-hairline: rgb(255 255 255 / 8%);
+  --c-hairline-strong: rgb(255 255 255 / 14%);
+  --c-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  width: min(664px, 92vw);
+  max-width: none;
+  max-height: 90vh;
+  padding: 0;
+  border: 0;
+  border-radius: 16px !important;
+  color: var(--c-text);
+  background-color: rgb(22 22 22 / 55%);
+  -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  backdrop-filter: blur(40px) saturate(1.5);
+  box-shadow: inset 0 1px rgb(255 255 255 / 8%), inset 0 0 0 1px var(--c-hairline-strong), 0 24px 64px -12px rgb(0 0 0 / 45%), 0 8px 16px -4px rgb(0 0 0 / 28%);
+  font-family: var(--encore-body-font-stack, var(--fallback-fonts, sans-serif));
+  overflow: hidden;
+}
+
+.clair-modal[open] {
+  display: flex;
+  flex-direction: column;
+  height: min(80vh, 820px);
+  animation: clair-modal-in 0.22s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.clair-modal::backdrop {
+  background-color: rgb(0 0 0 / 45%) !important;
+}
+
+@keyframes clair-modal-in {
+  from { opacity: 0; transform: scale(0.96); }
+}
+
+.clair-modal [hidden] {
+  display: none !important;
+}
+
+.clair-modal :focus-visible {
+  outline: 2px solid rgb(255 255 255 / 70%);
+  outline-offset: 2px;
+}
+
+.clair-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--c-hairline);
+}
+
+.clair-modal-title {
+  margin: 0;
+  font-size: 1.1rem !important;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--c-text);
+}
+
+.clair-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--c-text-2);
+  cursor: pointer;
+  transition: background-color 0.15s var(--c-ease), color 0.15s var(--c-ease), transform 0.12s ease;
+}
+
+.clair-close:hover {
+  background-color: var(--c-tint);
+  color: var(--c-text);
+}
+
+.clair-close:active {
+  background-color: var(--c-tint-hover);
+  transform: scale(0.96);
+}
+
+.clair-modal-body {
+  flex: 1;
+  overflow: hidden auto;
+  padding: 20px 24px 24px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+/* Clair / Spicy picker */
+.clair-styles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.clair-style {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--c-tint);
+  box-shadow: inset 0 0 0 1px var(--c-hairline);
+  color: var(--c-text-2);
+  text-align: start;
+  cursor: pointer;
+  transition: background 0.15s var(--c-ease), box-shadow 0.15s var(--c-ease), transform 0.12s ease;
+}
+
+.clair-style:hover {
+  background: var(--c-tint-hover);
+}
+
+.clair-style:active {
+  transform: scale(0.98);
+}
+
+.clair-style[aria-checked="true"] {
+  background: rgb(255 255 255 / 16%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 30%), inset 0 0 0 1px rgb(255 255 255 / 28%);
+  color: var(--c-text);
+}
+
+.clair-style-name {
+  font-size: 0.9575rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.clair-style-desc {
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+/* Search */
+.clair-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  margin-bottom: 8px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--c-tint);
+  box-shadow: inset 0 0 0 1px var(--c-hairline);
+  color: var(--c-text-3);
+  cursor: text;
+  transition: background 0.15s var(--c-ease), box-shadow 0.15s var(--c-ease);
+}
+
+.clair-search:hover,
+.clair-search:focus-within {
+  background: var(--c-tint-hover);
+}
+
+.clair-search:focus-within {
+  box-shadow: inset 0 0 0 1px var(--c-hairline-strong);
+}
+
+.clair-search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: var(--c-text);
+  font-size: 0.875rem !important;
+}
+
+.clair-modal .clair-search-input:focus-visible {
+  outline: none;
+}
+
+.clair-search-input::placeholder {
+  color: var(--c-text-2);
+}
+
+/* Sections and rows */
+.clair-section {
+  margin: 8px 0 4px;
+  padding: 16px 2px 8px;
+  border-top: 1px solid var(--c-hairline);
+  font-size: 0.9575rem !important;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--c-text);
+}
+
+.clair-search + .clair-group .clair-section {
+  margin-top: 0;
+  padding-top: 8px;
+  border-top: 0;
+}
+
+.clair-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  transition: background 0.15s var(--c-ease);
+}
+
+.clair-row:hover {
+  background: var(--c-tint);
+}
+
+.clair-label-wrap {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.clair-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--c-text);
+}
+
+.clair-desc {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--c-text-2);
+  opacity: 0.85;
+}
+
+.clair-control {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Toggle */
+.clair-toggle {
+  position: relative;
+  display: inline-flex;
+  width: 42px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.clair-toggle input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.clair-toggle-track {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 12px;
+  background: rgb(0 0 0 / 42%);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 45%), inset 0 0 0 1px rgb(255 255 255 / 6%);
+  transition: background 0.22s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.22s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.clair-toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgb(245 245 245 / 78%);
+  box-shadow: 0 2px 5px rgb(0 0 0 / 50%), 0 0 0 0.5px rgb(0 0 0 / 28%);
+  transition: transform 0.22s cubic-bezier(0.23, 1, 0.32, 1), background 0.22s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.clair-toggle:hover .clair-toggle-track {
+  background: rgb(0 0 0 / 50%);
+}
+
+.clair-toggle input:checked + .clair-toggle-track {
+  background: rgb(255 255 255 / 42%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 30%), inset 0 0 0 1px rgb(255 255 255 / 24%);
+}
+
+.clair-toggle input:checked + .clair-toggle-track::after {
+  transform: translateX(18px);
+  background: #fff;
+}
+
+.clair-toggle input:focus-visible + .clair-toggle-track {
+  outline: 2px solid rgb(255 255 255 / 70%);
+  outline-offset: 2px;
+}
+
+/* Select */
+.clair-select {
+  max-width: 240px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--c-tint);
+  box-shadow: inset 0 0 0 1px var(--c-hairline);
+  color: var(--c-text);
+  font-size: 0.82rem !important;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s var(--c-ease), box-shadow 0.15s var(--c-ease);
+}
+
+.clair-select:hover {
+  background: var(--c-tint-hover);
+  box-shadow: inset 0 0 0 1px var(--c-hairline-strong);
+}
+
+.clair-select option {
+  background: #fff;
+  color: rgb(0 0 0 / 92%);
+}
+
+/* Slider */
+.clair-range-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.clair-range {
+  width: 160px;
+  height: 4px;
+  margin: 0;
+  border-radius: 99px;
+  background: var(--c-tint-hover);
+  appearance: none;
+  cursor: pointer;
+}
+
+.clair-range::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 50%);
+  appearance: none;
+  transition: transform 0.12s ease;
+}
+
+.clair-range:hover::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+
+.clair-value {
+  min-width: 42px;
+  text-align: end;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-text-2);
+}
+
+/* Color picker */
+.clair-color {
+  width: 42px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+}
+
+.clair-color::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.clair-color::-webkit-color-swatch {
+  border: 0;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px var(--c-hairline-strong);
+}
+
+/* Buttons */
+.clair-btn {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: rgb(255 255 255 / 95%);
+  color: #000;
+  font-size: 0.82rem !important;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.18s, box-shadow 0.18s, transform 0.12s;
+}
+
+.clair-btn:hover {
+  background-color: #fff;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 20%);
+}
+
+.clair-btn:active {
+  transform: scale(0.97);
+}
+
+.clair-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.clair-btn-ghost {
+  background-color: rgb(255 255 255 / 6%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 18%), inset 0 0 0 1px var(--c-hairline-strong), inset 0 -1px rgb(255 255 255 / 14%);
+  color: var(--c-text);
+}
+
+.clair-btn-ghost:hover {
+  background-color: rgb(255 255 255 / 11%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 24%), inset 0 0 0 1px rgb(255 255 255 / 28%), inset 0 -1px rgb(255 255 255 / 16%);
+}
+
+@media (max-width: 560px) {
+  .clair-styles {
+    grid-template-columns: 1fr;
+  }
+
+  .clair-row {
+    flex-wrap: wrap;
+  }
+}
+
+/* Marketplace sticky sort bar: same glass as the top bar */
+.marketplace-header {
+  padding: 8px !important;
+  border-radius: var(--clair-radius);
+  background-color: rgba(var(--spice-rgb-main), 0.6) !important;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 8%);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+}
+
+.marketplace-header__label {
+  font-size: 1rem;
+}
+
+/* Top bar buttons: same glass squares as the Clair settings button */
+.Root__globalNav button[class*="legacy-button-tertiary"]:not(form *, [aria-label=""]) {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 10%) !important;
+  border-radius: var(--clair-radius) !important;
+  background: rgb(255 255 255 / 8%) !important;
+  color: var(--spice-text);
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.Root__globalNav button[class*="legacy-button-tertiary"]:not(form *, [aria-label=""]):hover {
+  background: rgb(255 255 255 / 16%) !important;
+  color: var(--clair-accent);
+  transform: scale(1.04);
+}
+
+.Root__globalNav button[class*="legacy-button-tertiary"]:not(form *, [aria-label=""]):active {
+  transform: scale(0.96);
+}
+
+.Root__globalNav button[class*="legacy-button-tertiary"]:disabled {
+  opacity: 0.4;
+  transform: none !important;
+}
+
+.Root__globalNav .main-globalNav-historyButtonsWrapper,
+.Root__globalNav .main-actionButtons {
+  gap: 8px;
+}
+
+/* The bigger buttons spill out of Spotify's small no-drag box onto the window drag area,
+   which swallows their clicks (bell and friend activity). */
+.Root__globalNav button {
+  -webkit-app-region: no-drag;
+}
+
+/* Window controls. Spotify draws them natively over a ~53% black layer, so Clair brightens
+   what is underneath to cancel it and adds a glass pill; No controls hides them. */
+#clair-wc {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  width: 135px;
+  height: 64px;
+  pointer-events: none;
+}
+
+body.clair-wc-clair #clair-wc {
+  display: block;
+  -webkit-backdrop-filter: brightness(2.13);
+  backdrop-filter: brightness(2.13);
+}
+
+body.clair-wc-clair #clair-wc::before {
+  content: "";
+  position: absolute;
+  /* Fills the native button area exactly: their hover highlight is a full-height rectangle
+     that can't be styled, so a smaller pill lets it spill out. */
+  inset: 0;
+  border: solid rgb(255 255 255 / 21%);
+  border-width: 0 0 1px 1px;
+  border-radius: 0 0 0 var(--clair-radius);
+  background: rgb(255 255 255 / 17%);
+}
+
+body.clair-wc-hidden .main-globalNav-contentRight > :last-child:not(:has(button)) {
+  display: none;
+}
+
+body.clair-wc-hidden .main-globalNav-contentRight {
+  margin-inline-end: 12px !important;
+}
+
+/* Synced with Spicy Lyrics: the app background already matches the lyrics panel exactly,
+   so the page shows it instead of drawing a second copy. */
+body.clair-sync.clair-bg .Root__main-view #SpicyLyricsPage:not(.Fullscreen) .spicy-dynamic-bg {
+  visibility: hidden;
+}
+
+body.clair-sync.clair-bg .Root__main-view:has(#SpicyLyricsPage:not(.Fullscreen)) {
+  background: transparent !important;
+}
