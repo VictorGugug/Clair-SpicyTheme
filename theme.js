@@ -15,7 +15,6 @@
     { name: 'Blue', value: '4A99E9' },
     { name: 'Custom color', value: 'custom' },
   ];
-  // Light and Dark set the background brightness and how much the panels cover it.
   const APPEARANCES = {
     light: { name: 'Light', desc: 'Bright cover colors with see-through panels.', values: { bgBright: '100', opacity: '15' } },
     dark: { name: 'Dark', desc: 'Dimmed colors and deeper panels for night listening.', values: { bgBright: '55', opacity: '50' } },
@@ -44,17 +43,16 @@
     try {
       const value = Spicetify.LocalStorage.get('clair:' + key);
       if (value !== null && value !== undefined) return String(value);
-    } catch { /* storage unavailable */ }
+    } catch {}
     return DEFAULTS[key];
   };
 
   const set = (key, value) => {
-    try { Spicetify.LocalStorage.set('clair:' + key, String(value)); } catch { /* storage unavailable */ }
+    try { Spicetify.LocalStorage.set('clair:' + key, String(value)); } catch {}
   };
 
   const state = () => Object.fromEntries(Object.keys(DEFAULTS).map((key) => [key, get(key)]));
 
-  // Spicy Lyrics keeps its settings as JSON under SL:settings.
   const spicySettings = () => {
     try { return JSON.parse(Spicetify.LocalStorage.get('SL:settings')) || {}; } catch { return {}; }
   };
@@ -81,7 +79,7 @@
 
   const readable = (rgb) => {
     const [h, s, l] = rgbToHsl(rgb);
-    return hslToRgb([h, s < 0.12 ? s : Math.max(s, 0.6), Math.min(Math.max(l, 0.55), 0.68)]);
+    return hslToRgb([h, s < 0.25 ? s : Math.max(s, 0.6), Math.min(Math.max(l, 0.55), 0.68)]);
   };
 
   const image = (label) => Spicetify.Player.data?.item?.images?.find((img) => img.label === label)?.url;
@@ -90,7 +88,6 @@
 
   const httpImage = (uri) => uri && uri.replace('spotify:image:', 'https://i.scdn.co/image/');
 
-  // Same request and scheme choice as Spicy Lyrics: [minContrast, highContrast, higherContrast].
   const dynamicColors = (uri) => {
     if (!colorCache.has(uri)) {
       colorCache.set(uri, Spicetify.GraphQL.Request(Spicetify.GraphQL.Definitions.getDynamicColorsByUris, { imageUris: [uri] })
@@ -110,15 +107,13 @@
 
   const fetchCoverColor = async (uri) => {
     try {
-      const candidates = [...await dynamicColors(uri)];
-      return readable(candidates.sort((a, b) => rgbToHsl(b)[1] - rgbToHsl(a)[1])[0]);
+      return readable((await dynamicColors(uri))[1]);
     } catch {
       const palette = await Spicetify.colorExtractor(Spicetify.Player.data.item.uri);
-      return readable(hexToRgb((palette.VIBRANT || palette.PROMINENT).slice(1)));
+      return readable(hexToRgb((palette.PROMINENT || palette.VIBRANT).slice(1)));
     }
   };
 
-  // Artist header visual, resolved the way Spicy Lyrics does; falls back to the cover.
   const artistHeader = async () => {
     const item = Spicetify.Player.data?.item;
     const artist = item?.artists?.[0]?.uri;
@@ -163,7 +158,6 @@
         : '--spice-' + name + ': rgb(' + value + ');--spice-rgb-' + name + ': ' + value.join(', ') + ';'
     );
     const text = ':root:root{--clair-accent: rgb(' + rgb + ');--clair-accent-rgb: ' + rgb.join(', ') + ';' + css.join('') + '}';
-    // Rewriting :root restyles the whole app; skip it when the color did not change (same album).
     if (style.textContent !== text) style.textContent = text;
   };
 
@@ -178,7 +172,7 @@
       } else {
         rgb = hexToRgb(accent === 'custom' ? custom : accent);
       }
-    } catch { /* keep color.ini colors */ }
+    } catch {}
     if (token === accentToken) paint(rgb, parseInt(tone, 10) || 0);
   };
 
@@ -196,8 +190,6 @@
     return images.get(url);
   };
 
-  // Spicy Lyrics speeds its background up with the song: tempo and loudness of the
-  // current section plus a pulse on every confident beat (port of its Kl class).
   let analysis = { uri: '', data: null };
 
   const fetchAnalysis = async (uri) => {
@@ -207,7 +199,7 @@
       const content = hit && (await hit.json()).Content;
       if (content?.analysis) return content.analysis;
       if (content?.notFound) return null;
-    } catch { /* Spicy Lyrics cache unavailable */ }
+    } catch {}
     try {
       const data = await Spicetify.CosmosAsync.get('https://spclient.wg.spotify.com/audio-attributes/v1/audio-analysis/' + id + '?format=json');
       return data?.track && Array.isArray(data.sections) && Array.isArray(data.beats) ? data : null;
@@ -235,8 +227,6 @@
     return Math.max(0.1, Math.min(speed, 3));
   };
 
-  // Spicy Lyrics stretches its background over the lyrics panel. Mapping ours onto the same
-  // rectangle makes the panel area identical to Spicy and lets the rest of the app continue it.
   const lyricsRect = () => {
     const r = document.querySelector('.Root__main-view')?.getBoundingClientRect();
     if (!r || !r.width) return [0, 0, 0, 0];
@@ -250,10 +240,6 @@
     return data ? speedAt(data, Spicetify.Player.getProgress() / 1000) : 1;
   };
 
-  // WebGL port of the Spicy Lyrics dynamic background: the cover is Kawase-blurred
-  // once at 128px, then each frame warps it with simplex noise, crossfades covers,
-  // and applies vignette, saturation, dithering and brightness in a single pass.
-  // sat2 and bright stand in for the saturate(2.5) brightness(.65) filter Spicy puts on its canvas.
   const VERT = 'attribute vec2 p;varying vec2 uv;void main(){uv=p*.5+.5;gl_Position=vec4(p,0.,1.);}';
   const BLUR = 'precision highp float;uniform sampler2D t;uniform float o;varying vec2 uv;void main(){vec2 s=vec2(o/128.);'
     + 'gl_FragColor=(texture2D(t,uv-s)+texture2D(t,uv+vec2(s.x,-s.y))+texture2D(t,uv+vec2(-s.x,s.y))+texture2D(t,uv+s))*.25;}';
@@ -288,7 +274,7 @@ void main(){
   col=clamp(mix(vec3(dot(col,vec3(.2126,.7152,.0722))),col,sat2),0.,1.)*bright;
   gl_FragColor=vec4(col,1.);
 }`;
-  const RES = 0.5; // canvas renders at half the window size; the image is blurred anyway
+  const RES = 0.5;
 
   const createBackground = () => {
     const canvas = Object.assign(document.createElement('canvas'), { id: 'clair-bg' });
@@ -340,7 +326,7 @@ void main(){
     let cur = target();
     let next = target();
     let opts = { on: false, speed: () => 0, warp: 1, sat: 1, sat2: 1, bright: 1, dither: 0 };
-    let fade = 500; // Spicy Lyrics: 500ms for the first cover, 1s afterwards
+    let fade = 500;
     let fadeStart = -fade;
     let speed = 0;
     let time = 0;
@@ -369,10 +355,10 @@ void main(){
       raf = 0;
       if (document.hidden || !(opts.on || now - fadeStart < fade)) return;
       raf = requestAnimationFrame(loop);
-      if (now - last < 33) return; // 30 fps is plenty for a slow blur
+      if (now - last < 33) return;
       const dt = Math.min(now - last, 100);
       last = now;
-      speed += (opts.speed() - speed) * (1 - Math.pow(0.95, dt / 16.67)); // Spicy eases 5% per 60fps frame
+      speed += (opts.speed() - speed) * (1 - Math.pow(0.95, dt / 16.67));
       time += dt / 1000 * speed;
       render();
     };
@@ -430,7 +416,6 @@ void main(){
   const staticBg = Object.assign(document.createElement('div'), { id: 'clair-bg-static' });
   const controlsBg = Object.assign(document.createElement('div'), { id: 'clair-wc' });
 
-  // Which background is showing: 'none', 'off' (dynamic), or a Spicy Lyrics static mode.
   const backgroundMode = (cfg) => {
     if (cfg.bg !== '1') return 'none';
     if (cfg.sync !== '1') return 'off';
@@ -474,37 +459,31 @@ void main(){
         if (token !== bgToken) return;
         staticBg.style.backgroundImage = 'url("' + url + '")';
       } else if (mode === 'off' && bg) {
-        // The analysis JSON is big; parse it after the 1s cover fade instead of during it.
         if (spicy) setTimeout(loadAnalysis, 1200);
         const passes = spicy ? 8 : Math.max(1, Math.min(40, parseInt(cfg.bgPasses, 10) || 8));
         const url = httpImage(image('standard') || coverUri());
         if (!url || bgArt === url + passes) return;
-        // The blur works at 128px: shrink off the main thread so the texture upload is tiny.
         const img = await createImageBitmap(await loadImage(url), { resizeWidth: 128, resizeHeight: 128, resizeQuality: 'medium' });
         if (token !== bgToken) return img.close();
         bg.load(img, passes);
         img.close();
         bgArt = url + passes;
       }
-    } catch { /* keep the previous background */ }
+    } catch {}
   };
 
-  // Minimize, maximize and close are native; Spotify only lets us show or hide them.
   let buttonsHidden = false;
-  // Hiding the buttons alone leaves their click area; shrinking the title bar removes it (as noControls does).
-  // 64 is Spotify's own title bar height at 100% zoom.
   const nativeButtons = (show) => {
     try {
       Spicetify.Platform.NativeAPI?.setWindowButtonsVisibility(show);
       Spicetify.Platform.ControlMessageAPI?.setTitlebarHeight(show ? 64 : 1);
-    } catch { /* API unavailable */ }
+    } catch {}
   };
   const setButtons = (show) => {
     if (show === !buttonsHidden) return;
     buttonsHidden = !show;
     nativeButtons(show);
     if (show) return;
-    // Spotify turns them back on while it starts up; keep hiding them for a few seconds.
     let tries = 0;
     const id = setInterval(() => {
       if (!buttonsHidden || ++tries > 30) clearInterval(id);
@@ -532,7 +511,6 @@ void main(){
     applyBackground();
   };
 
-  // ---------- settings modal (same layout and look as the Spicy Lyrics settings) ----------
 
   const el = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -633,7 +611,6 @@ void main(){
   const openSpicySettings = () => {
     dialog.close();
     if (window.SpicyLyrics?.panels?.settings) return window.SpicyLyrics.panels.settings.open();
-    // The settings button lives on the Spicy Lyrics page.
     if (Spicetify.Platform.History.location.pathname !== '/SpicyLyrics') Spicetify.Platform.History.push('/SpicyLyrics');
     let tries = 0;
     const click = () => {
@@ -790,13 +767,12 @@ void main(){
     if (user && settingsButton.nextElementSibling !== user) user.before(settingsButton);
   };
 
-  // Spicy Lyrics saves its settings through Spicetify.LocalStorage; follow every change live.
   const watchSpicy = () => {
     const storage = Spicetify.LocalStorage;
     const original = storage.set;
     try {
       storage.set = wrapped;
-    } catch { /* read-only: Spicy changes apply on the next song */ }
+    } catch {}
     function wrapped(key) {
       const result = original.apply(this, arguments);
       if (key === 'SL:settings' && get('sync') === '1') {
@@ -814,7 +790,7 @@ void main(){
     }
     try {
       bg = createBackground();
-    } catch { /* no WebGL: panels stay solid */ }
+    } catch {}
     document.body.prepend(staticBg);
     document.body.append(controlsBg);
     if (bg) {
@@ -824,16 +800,13 @@ void main(){
     buildDialog();
     watchSpicy();
     apply();
-    // The restored track shows up without a songchange event; paint it once it arrives.
     const firstTrack = () => (Spicetify.Player.data?.item ? apply() : setTimeout(firstTrack, 300));
     firstTrack();
-    // Let Spotify and Spicy Lyrics render the new track first; repaint in the next idle moment.
     Spicetify.Player.addEventListener('songchange', () => requestIdleCallback(() => {
       applyAccent();
       applyBackground();
     }, { timeout: 300 }));
     placeButton();
-    // React re-renders the top bar at times; keep the button next to the avatar.
     new MutationObserver(placeButton).observe(document.querySelector('.Root__globalNav') || document.body, { childList: true, subtree: true });
   };
 

@@ -27,7 +27,6 @@
   background-color: var(--spice-main);
 }
 
-/* Sticky top bar (artist name + play button on profiles): glass once Spotify fades it in */
 .main-topBar-background {
   background-color: rgba(var(--spice-rgb-main), 0.6) !important;
   background-image: none !important;
@@ -90,7 +89,6 @@
   border-radius: var(--clair-radius-sm) !important;
 }
 
-/* The rounded image sits in Spotify's square-cornered placeholder; hide it or it shows as a dark frame */
 .x-entityImage-imageContainer,
 .main-cardImage-imageWrapper,
 .main-nowPlayingWidget-coverArtContainer,
@@ -148,7 +146,6 @@ dialog::backdrop {
   background-color: rgb(0 0 0 / 60%) !important;
 }
 
-/* Spotify's own inputs only: leave Spicy Lyrics and Clair controls alone */
 input:not(.clair-modal input, sl-generic-modal input, [type="range"], [type="color"], [type="checkbox"]) {
   background-color: unset !important;
   border-bottom: 1px solid var(--spice-text) !important;
@@ -165,7 +162,6 @@ body.clair-minimal .main-topBar-buddyFeed[data-restore-focus-key="buddy_feed"] {
   display: none !important;
 }
 
-/* Spicy Lyrics dynamic background (WebGL canvas drawn by theme.js) */
 #clair-bg {
   display: none;
   position: fixed;
@@ -180,7 +176,6 @@ body.clair-bg:not(.clair-bg-image, .clair-bg-color) #clair-bg {
   display: block;
 }
 
-/* Spicy Lyrics static backgrounds (image and color), same filters as Spicy */
 #clair-bg-static {
   display: none;
   position: fixed;
@@ -233,7 +228,6 @@ body.clair-bg .Root__now-playing-bar {
   background: transparent !important;
 }
 
-/* Glass panels with the Spicy Lyrics edge highlight */
 body.clair-bg .Root__nav-bar,
 body.clair-bg .Root__main-view,
 body.clair-bg .Root__right-sidebar > :not(.LayoutResizer__resize-bar),
@@ -260,8 +254,6 @@ body.clair-bg .main-trackList-trackListHeader {
   background-color: transparent !important;
 }
 
-/* Profiles: the header image sits outside the scroller. Scroll it with the page
-   instead of letting it show through the track list, and drop the artist color layer. */
 body.clair-bg .main-view-container {
   timeline-scope: --clair-scroll;
 }
@@ -324,7 +316,6 @@ body.clair-glass .main-nowPlayingBar-container {
   }
 }
 
-/* Settings button: large glass square next to the avatar */
 .clair-cog {
   display: grid;
   place-items: center;
@@ -356,7 +347,6 @@ body.clair-glass .main-nowPlayingBar-container {
   outline-offset: 2px;
 }
 
-/* Settings modal: same tokens and layout as the Spicy Lyrics settings */
 .clair-modal {
   --c-text: hsl(0 0% 100% / 92%);
   --c-text-2: hsl(0 0% 100% / 60%);
@@ -456,7 +446,6 @@ body.clair-glass .main-nowPlayingBar-container {
   scrollbar-gutter: stable;
 }
 
-/* Clair / Spicy picker */
 .clair-styles {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -504,7 +493,6 @@ body.clair-glass .main-nowPlayingBar-container {
   line-height: 1.4;
 }
 
-/* Search */
 .clair-search {
   display: flex;
   align-items: center;
@@ -546,7 +534,6 @@ body.clair-glass .main-nowPlayingBar-container {
   color: var(--c-text-2);
 }
 
-/* Sections and rows */
 .clair-section {
   margin: 8px 0 4px;
   padding: 16px 2px 8px;
@@ -604,7 +591,6 @@ body.clair-glass .main-nowPlayingBar-container {
   flex-shrink: 0;
 }
 
-/* Toggle */
 .clair-toggle {
   position: relative;
   display: inline-flex;
@@ -662,7 +648,6 @@ body.clair-glass .main-nowPlayingBar-container {
   outline-offset: 2px;
 }
 
-/* Select */
 .clair-select {
   max-width: 240px;
   padding: 6px 10px;
@@ -687,7 +672,6 @@ body.clair-glass .main-nowPlayingBar-container {
   color: rgb(0 0 0 / 92%);
 }
 
-/* Slider */
 .clair-range-wrap {
   display: flex;
   align-items: center;
@@ -726,7 +710,6 @@ body.clair-glass .main-nowPlayingBar-container {
   color: var(--c-text-2);
 }
 
-/* Color picker */
 .clair-color {
   width: 42px;
   height: 28px;
@@ -747,7 +730,6 @@ body.clair-glass .main-nowPlayingBar-container {
   box-shadow: inset 0 0 0 1px var(--c-hairline-strong);
 }
 
-/* Buttons */
 .clair-btn {
   flex-shrink: 0;
   min-height: 36px;
@@ -799,7 +781,6 @@ body.clair-glass .main-nowPlayingBar-container {
   }
 }
 
-/* Marketplace sticky sort bar: same glass as the top bar */
 .marketplace-header {
   padding: 8px !important;
   border-radius: var(--clair-radius);
@@ -813,7 +794,6 @@ body.clair-glass .main-nowPlayingBar-container {
   font-size: 1rem;
 }
 
-/* Top bar buttons: same glass squares as the Clair settings button */
 .Root__globalNav button[class*="legacy-button-tertiary"]:not(form *, [aria-label=""]) {
   display: grid;
   place-items: center;
@@ -849,14 +829,10 @@ body.clair-glass .main-nowPlayingBar-container {
   gap: 8px;
 }
 
-/* The bigger buttons spill out of Spotify's small no-drag box onto the window drag area,
-   which swallows their clicks (bell and friend activity). */
 .Root__globalNav button {
   -webkit-app-region: no-drag;
 }
 
-/* Window controls. Spotify draws them natively over a ~53% black layer, so Clair brightens
-   what is underneath to cancel it and adds a glass pill; No controls hides them. */
 #clair-wc {
   display: none;
   position: fixed;
@@ -877,9 +853,7 @@ body.clair-wc-clair #clair-wc {
 body.clair-wc-clair #clair-wc::before {
   content: "";
   position: absolute;
-  /* Fills the native button area exactly: their hover highlight is a full-height rectangle
-     that can't be styled, so a smaller pill lets it spill out. */
-  inset: 0;
+    inset: 0;
   border: solid rgb(255 255 255 / 21%);
   border-width: 0 0 1px 1px;
   border-radius: 0 0 0 var(--clair-radius);
@@ -894,12 +868,22 @@ body.clair-wc-hidden .main-globalNav-contentRight {
   margin-inline-end: 12px !important;
 }
 
-/* Synced with Spicy Lyrics: the app background already matches the lyrics panel exactly,
-   so the page shows it instead of drawing a second copy. */
 body.clair-sync.clair-bg .Root__main-view #SpicyLyricsPage:not(.Fullscreen) .spicy-dynamic-bg {
   visibility: hidden;
 }
 
-body.clair-sync.clair-bg .Root__main-view:has(#SpicyLyricsPage:not(.Fullscreen)) {
+body.clair-sync.clair-bg:has(.Root__main-view #SpicyLyricsPage:not(.Fullscreen)) :is(.Root__nav-bar, .Root__main-view, .Root__right-sidebar > :not(.LayoutResizer__resize-bar), .main-nowPlayingBar-container) {
   background: transparent !important;
+}
+
+@media (min-width: 1280px) {
+  .Root__globalNav.Root__globalNav > .main-globalNav-searchSection {
+    position: absolute;
+    justify-content: center;
+  }
+
+  .Root__globalNav.Root__globalNav .main-globalNav-searchContainer {
+    width: 50%;
+    min-width: 350px;
+  }
 }
