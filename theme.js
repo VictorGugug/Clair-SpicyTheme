@@ -105,13 +105,19 @@
     return colorCache.get(uri);
   };
 
-  const fetchCoverColor = async (uri) => {
-    try {
-      return readable((await dynamicColors(uri))[1]);
-    } catch {
-      const palette = await Spicetify.colorExtractor(Spicetify.Player.data.item.uri);
-      return readable(hexToRgb((palette.PROMINENT || palette.VIBRANT).slice(1)));
+  const coverColor = async (url, boost) => {
+    const ctx = new OffscreenCanvas(16, 16).getContext('2d', { willReadFrequently: true });
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(await loadImage(url), 0, 0, 16, 16);
+    const data = ctx.getImageData(0, 0, 16, 16).data;
+    const sum = [0, 0, 0];
+    for (let i = 0; i < data.length; i += 4) {
+      sum[0] += data[i];
+      sum[1] += data[i + 1];
+      sum[2] += data[i + 2];
     }
+    const [h, sat, l] = rgbToHsl(sum.map((v) => v / 256));
+    return readable(hslToRgb([h, Math.min(1, sat * boost), l]));
   };
 
   const artistHeader = async () => {
@@ -163,12 +169,12 @@
 
   const applyAccent = async () => {
     const token = ++accentToken;
-    const { accent, custom, tone } = state();
+    const { accent, custom, tone, sync, bgSat } = state();
     let rgb = null;
     try {
       if (accent === 'cover') {
-        const uri = coverUri();
-        if (uri) rgb = await fetchCoverColor(uri);
+        const url = httpImage(image('standard') || coverUri());
+        if (url) rgb = await coverColor(url, sync === '1' ? 3.75 : bgSat / 100);
       } else {
         rgb = hexToRgb(accent === 'custom' ? custom : accent);
       }
@@ -227,11 +233,21 @@
     return Math.max(0.1, Math.min(speed, 3));
   };
 
-  const lyricsRect = () => {
-    const r = document.querySelector('.Root__main-view')?.getBoundingClientRect();
-    if (!r || !r.width) return [0, 0, 0, 0];
-    return [r.left / innerWidth, 1 - r.bottom / innerHeight, r.width / innerWidth, r.height / innerHeight];
+  let rect = [0, 0, 0, 0];
+  let mainView = null;
+  const measure = () => {
+    const r = mainView?.getBoundingClientRect();
+    rect = r?.width ? [r.left / innerWidth, 1 - r.bottom / innerHeight, r.width / innerWidth, r.height / innerHeight] : [0, 0, 0, 0];
   };
+  const viewObserver = new ResizeObserver(measure);
+  const watchMainView = () => {
+    const view = document.querySelector('.Root__main-view');
+    if (!view || view === mainView) return;
+    if (mainView) viewObserver.unobserve(mainView);
+    mainView = view;
+    viewObserver.observe(view);
+  };
+  const lyricsRect = () => rect;
 
   const spicySpeed = () => {
     const player = Spicetify.Player.data;
@@ -367,6 +383,7 @@ void main(){
     };
 
     const resize = () => {
+      measure();
       canvas.width = Math.max(1, Math.round(innerWidth * RES));
       canvas.height = Math.max(1, Math.round(innerHeight * RES));
       render();
@@ -497,6 +514,7 @@ void main(){
     const cfg = state();
     const radius = Math.max(0, Math.min(24, parseInt(cfg.radius, 10) || 0));
     const root = document.documentElement.style;
+    watchMainView();
     document.body.classList.toggle('clair-sync', cfg.sync === '1');
     document.body.classList.toggle('clair-glass', cfg.bg === '1' && cfg.glassBlur !== '0');
     document.body.classList.toggle('clair-minimal', cfg.minimal === '1');
@@ -784,7 +802,7 @@ void main(){
   };
 
   const boot = () => {
-    if (!(document.body && window.Spicetify?.Player?.addEventListener && Spicetify.GraphQL && Spicetify.LocalStorage)) {
+    if (!(document.body && window.Spicetify?.Player?.addEventListener && Spicetify.GraphQL && Spicetify.LocalStorage && Spicetify.Platform?.History)) {
       setTimeout(boot, 200);
       return;
     }
@@ -806,6 +824,9 @@ void main(){
       applyAccent();
       applyBackground();
     }, { timeout: 300 }));
+    const route = ({ pathname }) => document.body.classList.toggle('clair-lyrics', pathname === '/SpicyLyrics');
+    route(Spicetify.Platform.History.location);
+    Spicetify.Platform.History.listen(route);
     placeButton();
     new MutationObserver(placeButton).observe(document.querySelector('.Root__globalNav') || document.body, { childList: true, subtree: true });
   };

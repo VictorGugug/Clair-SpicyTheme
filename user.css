@@ -868,12 +868,31 @@ body.clair-wc-hidden .main-globalNav-contentRight {
   margin-inline-end: 12px !important;
 }
 
-body.clair-sync.clair-bg .Root__main-view #SpicyLyricsPage:not(.Fullscreen) .spicy-dynamic-bg {
+body.clair-sync.clair-bg.clair-lyrics #SpicyLyricsPage:not(.Fullscreen) .spicy-dynamic-bg {
   visibility: hidden;
 }
 
-body.clair-sync.clair-bg:has(.Root__main-view #SpicyLyricsPage:not(.Fullscreen)) :is(.Root__nav-bar, .Root__main-view, .Root__right-sidebar > :not(.LayoutResizer__resize-bar), .main-nowPlayingBar-container) {
+body.clair-sync.clair-bg.clair-lyrics :is(.Root__nav-bar, .Root__main-view, .Root__right-sidebar > :not(.LayoutResizer__resize-bar), .main-nowPlayingBar-container) {
   background: transparent !important;
+}
+
+.encore-bright-accent-set.encore-bright-accent-set,
+.encore-positive-set.encore-positive-set {
+  --background-base: var(--clair-accent);
+  --background-highlight: var(--spice-button-active);
+  --background-press: var(--clair-accent);
+  --background-elevated-base: var(--spice-button-active);
+  --background-elevated-highlight: var(--spice-button-active);
+  --background-elevated-press: var(--clair-accent);
+  --background-tinted-base: var(--clair-accent);
+  --background-tinted-highlight: var(--spice-button-active);
+  --background-tinted-press: var(--clair-accent);
+  --decorative-subdued: var(--clair-accent);
+}
+
+.main-nowPlayingBar-extraControls button:is(:disabled, [aria-disabled="true"]) {
+  color: rgba(var(--spice-rgb-text), 0.7) !important;
+  opacity: 0.45;
 }
 
 @media (min-width: 1280px) {
