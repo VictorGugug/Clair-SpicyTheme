@@ -490,10 +490,28 @@ void main(){
   };
 
   let buttonsHidden = false;
+  let titlebar = 64;
+  const guardButtons = () => {
+    const native = Spicetify.Platform.NativeAPI;
+    const control = Spicetify.Platform.ControlMessageAPI;
+    if (native?.setWindowButtonsVisibility) {
+      const show = native.setWindowButtonsVisibility;
+      native.setWindowButtonsVisibility = function (visible) {
+        return show.call(this, visible && !buttonsHidden);
+      };
+    }
+    if (control?.setTitlebarHeight) {
+      const height = control.setTitlebarHeight;
+      control.setTitlebarHeight = function (value) {
+        if (!buttonsHidden && value > 1) titlebar = value;
+        return height.call(this, buttonsHidden ? 1 : value);
+      };
+    }
+  };
   const nativeButtons = (show) => {
     try {
       Spicetify.Platform.NativeAPI?.setWindowButtonsVisibility(show);
-      Spicetify.Platform.ControlMessageAPI?.setTitlebarHeight(show ? 64 : 1);
+      Spicetify.Platform.ControlMessageAPI?.setTitlebarHeight(show ? titlebar : 1);
     } catch {}
   };
   const setButtons = (show) => {
@@ -507,10 +525,6 @@ void main(){
       else nativeButtons(false);
     }, 300);
   };
-  const rehide = () => buttonsHidden && nativeButtons(false);
-  document.addEventListener('fullscreenchange', rehide);
-  addEventListener('resize', rehide);
-  addEventListener('focus', rehide);
   addEventListener('beforeunload', () => setButtons(true));
 
   const apply = () => {
@@ -820,6 +834,9 @@ void main(){
     }
     buildDialog();
     watchSpicy();
+    try {
+      guardButtons();
+    } catch {}
     apply();
     const firstTrack = () => (Spicetify.Player.data?.item ? apply() : setTimeout(firstTrack, 300));
     firstTrack();
