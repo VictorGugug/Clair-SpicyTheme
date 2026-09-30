@@ -876,6 +876,14 @@ body.clair-sync.clair-bg.clair-lyrics :is(.Root__nav-bar, .Root__main-view, .Roo
   background: transparent !important;
 }
 
+.Root__top-container:has(> .Root__nav-bar:not([class="Root__nav-bar"])) > .Root__main-view {
+  visibility: hidden;
+}
+
+.Root__right-sidebar-collapsed .Root__right-sidebar-peekContent {
+  visibility: hidden;
+}
+
 .encore-bright-accent-set.encore-bright-accent-set,
 .encore-positive-set.encore-positive-set {
   --background-base: var(--clair-accent);

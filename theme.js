@@ -507,7 +507,10 @@ void main(){
       else nativeButtons(false);
     }, 300);
   };
-  document.addEventListener('fullscreenchange', () => buttonsHidden && nativeButtons(false));
+  const rehide = () => buttonsHidden && nativeButtons(false);
+  document.addEventListener('fullscreenchange', rehide);
+  addEventListener('resize', rehide);
+  addEventListener('focus', rehide);
   addEventListener('beforeunload', () => setButtons(true));
 
   const apply = () => {
